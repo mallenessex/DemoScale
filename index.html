@@ -1,0 +1,262 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><title>DemoScale — Ask where your audience lives</title>
+<style>
+  :root{
+    --paper:#F1F4F2; --ink:#17211D; --ink-soft:#45524C; --ink-faint:#6E7D76;
+    --brand:#0B5D55; --brand-deep:#08453F; --brand-wash:#DFEBE8;
+    --amber:#9A6E1F; --amber-wash:#F3EAD6;
+    --card:#FBFCFB; --line:#D3DCD8; --mono-bg:#0E1A17; --mono-ink:#C9E5DE;
+    --good:#2E7D46;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper:#0F1614; --ink:#DDE7E3; --ink-soft:#A3B2AC; --ink-faint:#75847E;
+      --brand:#3FB3A2; --brand-deep:#5AC7B7; --brand-wash:#16302B;
+      --amber:#D2A050; --amber-wash:#2A2315;
+      --card:#151E1B; --line:#27332F; --mono-bg:#0A1210; --mono-ink:#9ED2C8;
+      --good:#5BB878;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0F1614; --ink:#DDE7E3; --ink-soft:#A3B2AC; --ink-faint:#75847E;
+    --brand:#3FB3A2; --brand-deep:#5AC7B7; --brand-wash:#16302B;
+    --amber:#D2A050; --amber-wash:#2A2315;
+    --card:#151E1B; --line:#27332F; --mono-bg:#0A1210; --mono-ink:#9ED2C8;
+    --good:#5BB878;
+  }
+  :root[data-theme="light"]{
+    --paper:#F1F4F2; --ink:#17211D; --ink-soft:#45524C; --ink-faint:#6E7D76;
+    --brand:#0B5D55; --brand-deep:#08453F; --brand-wash:#DFEBE8;
+    --amber:#9A6E1F; --amber-wash:#F3EAD6;
+    --card:#FBFCFB; --line:#D3DCD8; --mono-bg:#0E1A17; --mono-ink:#C9E5DE;
+    --good:#2E7D46;
+  }
+  *{box-sizing:border-box;}
+  html{background:var(--paper); scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto;} }
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:17px; line-height:1.65;
+  }
+  .serif{font-family:Charter,"Bitstream Charter","Sitka Text",Cambria,Georgia,serif;}
+  .mono{font-family:ui-monospace,"SF Mono","Cascadia Mono",Menlo,Consolas,monospace;}
+  .wrap{max-width:72rem; margin:0 auto; padding:0 1.4rem;}
+  a{color:var(--brand-deep); text-underline-offset:2px;}
+
+  /* ---------- top bar ---------- */
+  .bar{display:flex; align-items:center; justify-content:space-between; padding:1.1rem 0;}
+  .logo{font-family:Charter,Georgia,serif; font-weight:700; font-size:1.25rem; letter-spacing:-.01em;}
+  .logo b{color:var(--brand);}
+  .bar nav{display:flex; gap:1.3rem; font-size:.9rem;}
+  .bar nav a{color:var(--ink-soft); text-decoration:none;}
+  .bar nav a:hover,.bar nav a:focus-visible{color:var(--brand-deep); text-decoration:underline;}
+
+  /* ---------- hero ---------- */
+  .hero{padding:4.5rem 0 3.5rem; display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,1fr); gap:3rem; align-items:center;}
+  .hero h1{font-family:Charter,Georgia,serif; font-weight:700; font-size:clamp(2.3rem,4.6vw,3.6rem); line-height:1.08; margin:0 0 1.1rem; text-wrap:balance; letter-spacing:-.015em;}
+  .hero h1 em{font-style:italic; color:var(--brand);}
+  .hero .lede{font-size:1.16rem; color:var(--ink-soft); max-width:34rem; margin:0 0 1.8rem;}
+  .cta-row{display:flex; gap:.8rem; flex-wrap:wrap;}
+  .btn{display:inline-block; padding:.75rem 1.35rem; border-radius:6px; font-size:.95rem; font-weight:600; text-decoration:none; border:1px solid transparent;}
+  .btn.primary{background:var(--brand); color:#fff;}
+  .btn.primary:hover,.btn.primary:focus-visible{background:var(--brand-deep); color:#fff;}
+  .btn.ghost{border-color:var(--line); color:var(--ink-soft); background:var(--card);}
+  .btn.ghost:hover,.btn.ghost:focus-visible{border-color:var(--brand); color:var(--brand-deep);}
+  .hero .fine{margin-top:1rem; font-size:.8rem; color:var(--ink-faint);}
+
+  /* the conversation — the hero object */
+  .convo{display:flex; flex-direction:column; gap:.75rem;}
+  .msg{max-width:92%; border-radius:10px; padding:.85rem 1.05rem; font-size:.92rem; line-height:1.55;}
+  .msg .who{display:block; font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; font-weight:700; margin-bottom:.3rem; color:var(--ink-faint);}
+  .msg.planner{align-self:flex-end; background:var(--brand-wash); border:1px solid var(--line);}
+  .msg.ai{align-self:flex-start; background:var(--card); border:1px solid var(--line);}
+  .msg.ai .figure{font-variant-numeric:tabular-nums; font-weight:700; color:var(--brand-deep);}
+  .receipt{
+    align-self:flex-start; background:var(--mono-bg); color:var(--mono-ink);
+    border-radius:8px; padding:.8rem 1rem; font-size:.75rem; line-height:1.7; width:92%;
+    font-family:ui-monospace,"SF Mono","Cascadia Mono",Menlo,Consolas,monospace;
+  }
+  .receipt .rl{display:flex; justify-content:space-between; gap:1rem;}
+  .receipt .rl span:first-child{opacity:.65;}
+  .receipt .tear{border-top:1px dashed color-mix(in srgb, var(--mono-ink) 40%, transparent); margin:.45rem 0;}
+
+  /* ---------- sections ---------- */
+  section{padding:3.6rem 0;}
+  section + section{border-top:1px solid var(--line);}
+  .eyebrow{font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; font-weight:700; color:var(--brand); margin:0 0 .4rem;}
+  h2{font-family:Charter,Georgia,serif; font-weight:700; font-size:clamp(1.6rem,2.6vw,2.1rem); line-height:1.15; margin:0 0 1rem; text-wrap:balance;}
+  .measure{max-width:42rem; color:var(--ink-soft);}
+
+  .grid3{display:grid; grid-template-columns:repeat(auto-fit,minmax(15rem,1fr)); gap:1rem; margin-top:1.8rem;}
+  .pcard{background:var(--card); border:1px solid var(--line); border-radius:8px; padding:1.3rem 1.35rem;}
+  .pcard h3{font-family:Charter,Georgia,serif; font-size:1.12rem; margin:.1rem 0 .5rem;}
+  .pcard p{font-size:.92rem; color:var(--ink-soft); margin:0;}
+  .pcard .k{font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; font-weight:700; color:var(--amber);}
+
+  /* steps */
+  .steps{display:grid; grid-template-columns:repeat(auto-fit,minmax(15rem,1fr)); gap:1rem; margin-top:1.8rem; counter-reset:step;}
+  .step{background:var(--card); border:1px solid var(--line); border-radius:8px; padding:1.25rem 1.3rem; position:relative;}
+  .step::before{
+    counter-increment:step; content:counter(step);
+    font-family:Charter,Georgia,serif; font-weight:700; font-style:italic;
+    color:var(--brand); font-size:1.5rem; display:block; margin-bottom:.35rem;
+  }
+  .step h3{font-size:1rem; margin:0 0 .4rem;}
+  .step p{font-size:.9rem; color:var(--ink-soft); margin:0;}
+  .step code{font-size:.8em; background:var(--brand-wash); padding:.08rem .3rem; border-radius:4px;}
+
+  /* markets band */
+  .band{display:grid; grid-template-columns:repeat(auto-fit,minmax(9.5rem,1fr)); gap:.8rem; margin-top:1.6rem;}
+  .cell{background:var(--card); border:1px solid var(--line); border-radius:8px; padding:.9rem 1rem;}
+  .cell .v{font-family:Charter,Georgia,serif; font-size:1.45rem; font-weight:700; color:var(--brand-deep); font-variant-numeric:tabular-nums;}
+  .cell .k{font-size:.74rem; color:var(--ink-faint);}
+
+  .caveatline{
+    margin-top:1.8rem; border-left:4px solid var(--amber); background:var(--amber-wash);
+    border-radius:0 8px 8px 0; padding:.9rem 1.15rem; font-size:.92rem; max-width:46rem;
+  }
+  .caveatline .k{font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:700; color:var(--amber); display:block; margin-bottom:.2rem;}
+
+  /* CTA */
+  .cta-final{background:var(--mono-bg); color:var(--mono-ink); border-radius:12px; padding:2.6rem 2.4rem; margin:1rem 0 0;}
+  .cta-final h2{color:#fff; margin-bottom:.6rem;}
+  :root[data-theme="light"] .cta-final h2, .cta-final h2{color:color-mix(in srgb, var(--mono-ink) 60%, #fff);}
+  .cta-final p{max-width:40rem; opacity:.85; margin:0 0 1.4rem; font-size:.98rem;}
+  .cta-final .btn.primary{background:var(--brand);}
+  .cta-final .mono-note{font-size:.78rem; opacity:.6; margin-top:1.2rem;}
+
+  footer{padding:2.2rem 0 3rem; font-size:.82rem; color:var(--ink-faint); display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap;}
+
+  @media (max-width:860px){
+    .hero{grid-template-columns:1fr; padding-top:2.8rem;}
+    .bar nav{display:none;}
+  }
+</style>
+
+<div class="wrap">
+  <div class="bar">
+    <div class="logo">Demo<b>Scale</b></div>
+    <nav aria-label="Sections">
+      <a href="#receipts">Why trust it</a>
+      <a href="#how">How it works</a>
+      <a href="#engine">The engine</a>
+      <a href="#connect">Connect</a>
+    </nav>
+  </div>
+
+  <div class="hero">
+    <div>
+      <h1>Ask where your audience lives.<br>Get an answer you can <em>buy against</em>.</h1>
+      <p class="lede">DemoScale is the demographic truth layer for audience targeting — connect it to any AI and ask, in plain English, where to find your primary demo. It answers at county grain, in your buying currency, with the caveats attached.</p>
+      <div class="cta-row">
+        <a class="btn primary" href="#connect">Connect your AI</a>
+        <a class="btn ghost" href="#how">See a ten-minute demo</a>
+      </div>
+      <p class="fine">Six markets · official statistics only · every number arrives with its receipts</p>
+    </div>
+
+    <div class="convo" aria-label="Example conversation">
+      <div class="msg planner"><span class="who">Planner, to their own AI</span>
+        CTV launch for a premium meal-kit brand — adults 25–54, HHI $100K+, skewing female. Where do I put the weight?
+      </div>
+      <div class="msg ai"><span class="who">Their AI, having consulted DemoScale</span>
+        Your audience is <span class="figure">25.06M</span> people across 925 markets. Top by volume: New York, Los Angeles, Chicago — and Washington DC over-indexes at <span class="figure">148</span>. Want the ranked export your DSP can ingest?
+      </div>
+      <div class="receipt" aria-label="The receipts">
+        <div class="rl"><span>population</span><span>ACS 5-yr 2023 · county grain · reconciles to 332,387,540 exactly</span></div>
+        <div class="rl"><span>income screen</span><span>ACS B19001 brackets · modeled blend — stated, not hidden</span></div>
+        <div class="tear"></div>
+        <div class="rl"><span>caveat</span><span>4.8% of this audience lives outside any CBSA — and it says so</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section id="receipts">
+  <div class="wrap">
+    <p class="eyebrow">Why trust it</p>
+    <h2>Every number arrives with its receipts</h2>
+    <p class="measure">Smart-TV panels are enormous but biased. Vendors paper over the gap; DemoScale closes it with official statistics and tells you exactly how. Three rules, enforced in the schema, not the marketing:</p>
+    <div class="grid3">
+      <div class="pcard">
+        <span class="k">Rule one</span>
+        <h3>Native grain or stop</h3>
+        <p>US counties, UK local authorities, EU NUTS3 — loaded from census sources and reconciled against published totals before anything downstream may touch them. When a source doesn't support a claim, the system refuses the claim.</p>
+      </div>
+      <div class="pcard">
+        <span class="k">Rule two</span>
+        <h3>Caveats are sentences</h3>
+        <p>"England-only — Scottish deprivation isn't comparable." "This income screen is modeled, not enumerated." Limitations ship inside the answer, in plain speech — the only targeting source that tells you when <em>not</em> to use a number.</p>
+      </div>
+      <div class="pcard">
+        <span class="k">Rule three</span>
+        <h3>Licensed assets stay yours</h3>
+        <p>Nielsen market definitions, currency feeds, your sales data — bring-your-own, never bundled. Ask DemoScale for DMAs without a license and it declines, politely, with the reason. Procurement approves the tool that refuses correctly.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <p class="eyebrow">How it works</p>
+    <h2>From product to plan in one conversation</h2>
+    <div class="steps">
+      <div class="step">
+        <h3>Who buys this?</h3>
+        <p>Describe your product. Your AI gets spending indices by age and household income from federal expenditure data — who over-indexes, with sources — and a suggested starting audience.</p>
+      </div>
+      <div class="step">
+        <h3>Where do they live?</h3>
+        <p>The audience is sized and ranked across every market in six countries — each in its own buying currency, with an index against the national average and the coverage stated.</p>
+      </div>
+      <div class="step">
+        <h3>Export for activation</h3>
+        <p>The ranked table lands in your DSP's format, and the export writes a receipt. The conversation is the free demo; the export is the metered event.</p>
+      </div>
+    </div>
+    <div class="caveatline">
+      <span class="k">And if you have your own panel</span>
+      DemoScale weights it: household resolution, geographic scaling to official universes, behavioral calibration to industry currency, and sales calibration that only ships if it survives a holdout test. Any stage missing its inputs refuses — and lists exactly what's needed.
+    </div>
+  </div>
+</section>
+
+<section id="engine">
+  <div class="wrap">
+    <p class="eyebrow">The engine</p>
+    <h2>Deterministic math, conversational surface</h2>
+    <p class="measure">Nothing inside the estimation path is AI. Universes come from census sources; weighting is classical survey statistics — raking, rims, calibration — reproducible run over run and auditable line by line. The intelligence in the conversation is your model's; the truth in it is ours. That split is the design.</p>
+    <div class="band">
+      <div class="cell"><div class="v">6</div><div class="k">markets: US · UK · DE · FR · IT · ES</div></div>
+      <div class="cell"><div class="v">4,261</div><div class="k">atomic geographies, native grain</div></div>
+      <div class="cell"><div class="v">exact</div><div class="k">US reconciliation — to the person</div></div>
+      <div class="cell"><div class="v">76</div><div class="k">standing validation checks vs published figures</div></div>
+      <div class="cell"><div class="v">104 wks</div><div class="k">UK currency benchmark archive</div></div>
+      <div class="cell"><div class="v">8</div><div class="k">question-shaped tools your AI can call</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="connect">
+  <div class="wrap">
+    <div class="cta-final">
+      <p class="eyebrow" style="color:var(--brand-deep)">Two doors, one brain</p>
+      <h2 class="serif">Your model can already talk to it</h2>
+      <p>DemoScale speaks MCP — the open protocol ChatGPT, Claude, and Codex all connect to. Request connector access and your AI discovers the tools by itself, mid-conversation: <span class="mono">who_buys_this</span>, <span class="mono">where_does_my_audience_live</span>, <span class="mono">export_for_activation</span>. Prefer to look before you ask? A guided ten-minute demo covers the whole flow — including the moment it refuses to sell you someone else's licensed data.</p>
+      <div class="cta-row">
+        <a class="btn primary" href="mailto:michael.e.essex@gmail.com?subject=DemoScale%20connector%20access">Request connector access</a>
+        <a class="btn ghost" href="mailto:michael.e.essex@gmail.com?subject=DemoScale%20demo">Book the demo</a>
+      </div>
+      <p class="mono-note mono">conversation → free · export_for_activation → metered · credentials issued per client</p>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <footer>
+    <span><span class="serif" style="font-weight:700">Demo<span style="color:var(--brand)">Scale</span></span> — human accessible, AI conversational.</span>
+    <span>Sources: US Census · ONS · NRS · NISRA · HMRC · MHCLG · Eurostat · BARB · BLS</span>
+  </footer>
+</div>
+</body></html>
